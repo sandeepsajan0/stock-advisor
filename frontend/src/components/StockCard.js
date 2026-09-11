@@ -16,7 +16,7 @@ export default function StockCard({ data, mode }) {
     setBacktestLoading(true);
     setBacktestError(null);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL !== undefined ? process.env.NEXT_PUBLIC_API_URL : (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : '');
       const res = await fetch(`${apiUrl}/api/backtest/${ticker}?mode=${mode}`);
       if (!res.ok) throw new Error('Failed to run backtest');
       const json = await res.json();

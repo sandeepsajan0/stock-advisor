@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
 from services.scanner import run_scan, get_stock_details
 from services.data_fetcher import NIFTY_50_TICKERS
 from services.backtester import run_backtest
@@ -16,9 +19,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def read_root():
-    return {"status": "ok", "message": "Smart Stock Advisor API is running."}
+# Remove the root route so it doesn't conflict with StaticFiles
+# @app.get("/")
+# def read_root():
+#     return {"status": "ok", "message": "Smart Stock Advisor API is running."}
 
 @app.get("/api/scan")
 def scan_market(mode: Optional[str] = "swing"):
@@ -45,3 +49,8 @@ def backtest_stock(ticker: str, mode: Optional[str] = "swing", initial_capital: 
         
     results = run_backtest(ticker, mode, initial_capital, period)
     return results
+
+# Serve static files from the Next.js export directory
+frontend_out = os.path.join(os.path.dirname(__file__), "..", "frontend", "out")
+if os.path.exists(frontend_out):
+    app.mount("/", StaticFiles(directory=frontend_out, html=True), name="static")

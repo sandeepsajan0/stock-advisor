@@ -14,7 +14,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL !== undefined ? process.env.NEXT_PUBLIC_API_URL : (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : '');
       const res = await fetch(`${apiUrl}/api/scan?mode=${mode}`);
       if (!res.ok) throw new Error('Failed to fetch data from backend');
       const json = await res.json();
@@ -69,7 +69,16 @@ export default function Home() {
           onClick={scanMarket} 
           disabled={loading}
           style={{ 
-            background: `linear-gradient(135deg, ${activeMode.color}, ${activeMode.color}88)`
+            background: `transparent`,
+            border: `1px solid ${activeMode.color}`,
+            color: activeMode.color,
+            boxShadow: `0 0 10px ${activeMode.color}22`
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) e.currentTarget.style.background = `${activeMode.color}15`;
+          }}
+          onMouseLeave={(e) => {
+            if (!loading) e.currentTarget.style.background = `transparent`;
           }}
         >
           {loading ? (

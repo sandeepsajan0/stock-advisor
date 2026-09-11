@@ -16,7 +16,7 @@ export default function BacktestPanel() {
     setError(null);
     setData(null);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL !== undefined ? process.env.NEXT_PUBLIC_API_URL : (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : '');
       const res = await fetch(`${apiUrl}/api/backtest/${ticker.trim().toUpperCase()}?mode=${mode}&period=${period}`);
       if (!res.ok) throw new Error('Failed');
       const json = await res.json();
