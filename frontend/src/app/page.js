@@ -16,8 +16,14 @@ export default function Home() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL !== undefined ? process.env.NEXT_PUBLIC_API_URL : (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : '');
       const res = await fetch(`${apiUrl}/api/scan?mode=${mode}`);
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || json.detail || 'Failed to fetch data from backend');
+      const text = await res.text();
+      let json;
+      try {
+          json = text ? JSON.parse(text) : {};
+      } catch (e) {
+          throw new Error(`Invalid JSON from server. Status: ${res.status}. Body: ${text.substring(0, 100)}`);
+      }
+      if (!res.ok) throw new Error(json.error || json.detail || `Failed with status ${res.status}`);
       setData(json);
     } catch (err) {
       console.error(err);

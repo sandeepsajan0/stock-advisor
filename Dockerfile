@@ -24,6 +24,7 @@ COPY --from=builder /app/frontend/out ./frontend/out
 
 # Set environment variables
 ENV PORT=8000
+ENV RENDER=true
 EXPOSE 8000
 
 # Start the FastAPI server
