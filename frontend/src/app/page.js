@@ -16,11 +16,12 @@ export default function Home() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL !== undefined ? process.env.NEXT_PUBLIC_API_URL : (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:8000' : '');
       const res = await fetch(`${apiUrl}/api/scan?mode=${mode}`);
-      if (!res.ok) throw new Error('Failed to fetch data from backend');
       const json = await res.json();
+      if (!res.ok) throw new Error(json.error || json.detail || 'Failed to fetch data from backend');
       setData(json);
     } catch (err) {
-      setError("Unable to reach the backend server. Is the FastAPI server running?");
+      console.error(err);
+      setError(err.message || "Unable to reach the backend server.");
     } finally {
       setLoading(false);
     }

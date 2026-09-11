@@ -27,8 +27,14 @@ app.add_middleware(
 @app.get("/api/scan")
 def scan_market(mode: Optional[str] = "swing"):
     """Scans the market for buy signals with Market Regime & AI filter."""
-    scan_data = run_scan(mode)
-    return scan_data
+    try:
+        scan_data = run_scan(mode)
+        return scan_data
+    except Exception as e:
+        import traceback
+        error_msg = f"Scan error: {str(e)}\n{traceback.format_exc()}"
+        print(error_msg)
+        return {"error": error_msg}
 
 @app.get("/api/stocks/{ticker}")
 def get_stock(ticker: str):
@@ -47,8 +53,14 @@ def backtest_stock(ticker: str, mode: Optional[str] = "swing", initial_capital: 
     if not ticker.endswith(".NS") and not ticker.endswith(".BO") and not ticker.startswith("^"):
         ticker = f"{ticker}.NS"
         
-    results = run_backtest(ticker, mode, initial_capital, period)
-    return results
+    try:
+        results = run_backtest(ticker, mode, initial_capital, period)
+        return results
+    except Exception as e:
+        import traceback
+        error_msg = f"Backtest error: {str(e)}\n{traceback.format_exc()}"
+        print(error_msg)
+        return {"error": error_msg}
 
 # Serve static files from the Next.js export directory
 frontend_out = os.path.join(os.path.dirname(__file__), "..", "frontend", "out")
