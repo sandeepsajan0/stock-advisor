@@ -1,14 +1,21 @@
 from transformers import pipeline
 import yfinance as yf
 
-# Load the FinBERT model pipeline for sentiment analysis
-print("Loading FinBERT AI Model... This may take a moment.")
-try:
-    sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
-    print("FinBERT loaded successfully.")
-except Exception as e:
-    print(f"Error loading FinBERT: {e}")
+import os
+
+# Render's free tier only has 512MB RAM, which is not enough for FinBERT (400MB+ model).
+# We skip loading the AI model if we detect we are on Render.
+if os.environ.get("RENDER"):
+    print("Running on Render (limited RAM). Skipping FinBERT AI Model load to prevent OOM crash.")
     sentiment_pipeline = None
+else:
+    print("Loading FinBERT AI Model... This may take a moment.")
+    try:
+        sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
+        print("FinBERT loaded successfully.")
+    except Exception as e:
+        print(f"Error loading FinBERT: {e}")
+        sentiment_pipeline = None
 
 def get_stock_sentiment(ticker: str) -> dict:
     """
