@@ -2,6 +2,7 @@ services:
   - type: web
     name: stock-advisor-backend
     env: python
+    plan: free
     buildCommand: "cd backend && pip install -r requirements.txt"
     startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
     envVars:
@@ -10,9 +11,10 @@ services:
 
   - type: web
     name: stock-advisor-frontend
-    env: node
+    env: static
+    plan: free
     buildCommand: "cd frontend && npm install && npm run build"
-    startCommand: "cd frontend && npm run start"
+    staticPublishPath: "./frontend/out"
     envVars:
       - key: NEXT_PUBLIC_API_URL
         fromService:
