@@ -49,8 +49,9 @@ def fetch_multiple_stocks(tickers: List[str], period: str = "1y", interval: str 
         return data
     
     try:
+        # Disable threads to avoid overwhelming Render's limited CPU, and set a timeout so it doesn't hang
         tickers_str = " ".join(tickers)
-        df_batch = yf.download(tickers_str, period=period, interval=interval, group_by="ticker", threads=True, progress=False)
+        df_batch = yf.download(tickers_str, period=period, interval=interval, group_by="ticker", threads=False, progress=False, timeout=10)
         
         if len(tickers) == 1:
             data[tickers[0]] = df_batch
