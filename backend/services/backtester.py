@@ -1,6 +1,8 @@
 import pandas as pd
 from .data_fetcher import fetch_historical_data
 from .analyzer import add_indicators, check_buy_signal, check_44sma_signal, check_intraday_signal, check_sma1020_signal
+import numpy as np
+import math
 
 def run_backtest(ticker: str, mode: str = "swing", initial_capital: float = 100000.0, period: str = None):
     if period is None:
@@ -202,6 +204,29 @@ def run_backtest(ticker: str, mode: str = "swing", initial_capital: float = 1000
     gross_loss = abs(sum(t['profit_loss_pct'] for t in trades if t['profit_loss_pct'] <= 0))
     profit_factor = round(gross_profit / gross_loss, 2) if gross_loss > 0 else 0
     
+    # Extract chart data
+    chart_df = df.copy()
+    chart_df.reset_index(inplace=True)
+    if 'Date' in chart_df.columns:
+        chart_df['Date'] = chart_df['Date'].dt.strftime('%Y-%m-%d')
+    elif 'Datetime' in chart_df.columns:
+        chart_df['Date'] = chart_df['Datetime'].dt.strftime('%Y-%m-%d')
+        
+    chart_df = chart_df.replace([np.nan, float('inf'), float('-inf')], None)
+    
+    # We want OHLC + our SMAs
+    cols_to_keep = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume']
+    if 'SMA_5_HA' in chart_df.columns:
+        cols_to_keep.append('SMA_5_HA')
+    if 'SMA_20_HA' in chart_df.columns:
+        cols_to_keep.append('SMA_20_HA')
+        
+    chart_data = chart_df[cols_to_keep].to_dict('records')
+    for row in chart_data:
+        for k, v in row.items():
+            if isinstance(v, float) and math.isnan(v):
+                row[k] = None
+                
     return {
         "ticker": ticker,
         "mode": mode,
@@ -217,5 +242,6 @@ def run_backtest(ticker: str, mode: str = "swing", initial_capital: float = 1000
         "profit_factor": profit_factor,
         "max_drawdown_pct": round(max_drawdown, 2),
         "equity_curve": equity_curve[-100:],  # Last 100 data points for chart
-        "trades": trades
+        "trades": trades,
+        "chart_data": chart_data
     }

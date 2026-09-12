@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import TradingViewChart from './TradingViewChart';
 
 export default function BacktestPanel() {
   const [ticker, setTicker] = useState('');
@@ -154,6 +155,14 @@ export default function BacktestPanel() {
             <div className="glass-card" style={{ marginBottom: '1.5rem' }}>
               <h4 style={{ margin: '0 0 1rem 0', color: '#cbd5e1' }}>📈 Equity Curve</h4>
               <EquityCurve data={data.equity_curve} initialCapital={data.initial_capital} />
+            </div>
+          )}
+
+          {/* Interactive Chart */}
+          {data.chart_data && data.chart_data.length > 0 && (
+            <div className="glass-card" style={{ marginBottom: '1.5rem', padding: '1rem' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: '#cbd5e1' }}>🕯️ Interactive Chart & Trades</h4>
+              <TradingViewChart chartData={data.chart_data} tradesData={data.trades} />
             </div>
           )}
 
